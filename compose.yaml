@@ -1,0 +1,36 @@
+services:
+  db:
+    image: mysql:9.3.0
+    restart: on-failure:5
+    container_name: hospital_management_system
+    environment:
+      MYSQL_ROOT_PASSWORD: Annabeth@Data
+      MYSQL_RANDOM_ROOT_PASSWORD: 'no'  # Explicitly disable random password
+      MYSQL_DATABASE: hospital_db
+      MYSQL_USER: hospital_admin
+      MYSQL_PASSWORD: admin@GhostData
+      MYSQL_ROOT_HOST: '%'
+      TZ: UTC
+    volumes:
+      - ./mysql-data:/var/lib/mysql
+      - ./mysql/init.sql:/docker-entrypoint-initdb.d/init.sql
+    ports:
+      - "3308:3308"  # Standard MySQL port (3308 is unconventional)
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-uappuser", "-puserpass"]  # Added credentials
+      interval: 5s
+      timeout: 10s
+      retries: 10
+      start_period: 30s
+    networks:
+      - backend-network
+    security_opt:
+      - no-new-privileges:true
+
+volumes:
+  mysql-data:
+    driver: local
+
+networks:
+  backend-network:
+    driver: bridge
